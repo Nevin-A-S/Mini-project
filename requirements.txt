@@ -1,0 +1,16 @@
+spacy
+flask
+bs4
+google_generativeai
+
+# api = 'AIzaSyAm5HDnero63r30sO3kLyyaYLrGzUDOA20'
+
+transformers 
+einops 
+accelerate 
+langchain 
+bitsandbytes
+
+requests
+langchain_google_genai
+chromadb

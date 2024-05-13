@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Bot with Web Summarizer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Chat Bot with Web Summarizer</h1>
+        <div class="summarizer-container">
+            <h2>Web Summarizer</h2>
+            <form id="summarizeForm">
+                <input type="url" name="url" placeholder="Enter URL to summarize" required>
+                <button type="submit">Summarize</button>
+            </form>
+            <div class="summary-container">
+                <h3>Summary</h3>
+                <div class="summary-content"></div>
+            </div>
+        </div>
+        <div class="chat-container">
+            <div class="chat-messages">
+                <!-- Chat messages will be dynamically added here -->
+            </div>
+            <div class="chat-input">
+                <input type="text" placeholder="Type your message..." id="messageInput">
+                <button id="sendButton">Send</button>
+            </div>
+        </div>
+    </div>
+    <script src=" /main.js "></script>
+    
+    <script>
+
+        const chatMessages = document.querySelector('.chat-messages');
+        const messageInput = document.querySelector('#messageInput');
+        const sendButton = document.querySelector('#sendButton');
+
+        sendButton.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (message) {
+                const userMessage = createMessageElement('user', message);
+                chatMessages.appendChild(userMessage);
+                messageInput.value = '';
+
+                fetch('/get_bot_response', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ question: message })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const botMessage = createMessageElement('bot', data.response);
+                    chatMessages.appendChild(botMessage);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
+        }
+
+        function createMessageElement(type, message) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', type);
+            messageElement.textContent = message;
+            return messageElement;
+        }
+
+        // Web summarizer functionality
+        const summarizeForm = document.querySelector('#summarizeForm');
+        const summaryContent = document.querySelector('.summary-content');
+
+        summarizeForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const url = this.elements.url.value.trim();
+            if (url) {
+                print(url)
+                print('gigiig')
+                fetch('/get_summary', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ url: url })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    summaryContent.textContent = data.summary;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
+        });
+
+    </script>
+
+</body>
+</html>
